@@ -102,6 +102,28 @@ class HistoryStore:
             "pass_rate": passed / tests if tests else 0.0,
         }
 
+    def test_profiles(self) -> dict[str, dict[str, float | int]]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    name,
+                    COUNT(*) AS runs,
+                    AVG(duration_seconds) AS average_duration_seconds,
+                    AVG(CASE WHEN passed = 0 THEN 1.0 ELSE 0.0 END) AS failure_rate
+                FROM test_results
+                GROUP BY name
+                """
+            ).fetchall()
+        return {
+            row["name"]: {
+                "runs": int(row["runs"]),
+                "average_duration_seconds": float(row["average_duration_seconds"] or 0.0),
+                "failure_rate": float(row["failure_rate"] or 0.0),
+            }
+            for row in rows
+        }
+
     @staticmethod
     def _result_row(run_id: str, result: TestResult) -> tuple:
         return (

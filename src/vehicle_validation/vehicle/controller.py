@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from vehicle_validation.automation.faults import MessageDelayInjector
 from vehicle_validation.canbus.protocol import FaultCode, Gear, VehicleState, make_vcu_command
 from vehicle_validation.ecu.bms import BatteryManagementSystem
 from vehicle_validation.ecu.motor import MotorController
@@ -30,10 +31,13 @@ class VehicleController:
         bms: BatteryManagementSystem | None = None,
         vcu: VehicleControlUnit | None = None,
         motor: MotorController | None = None,
+        fault_injector: MessageDelayInjector | None = None,
     ) -> None:
         self.bms = bms or BatteryManagementSystem()
         self.vcu = vcu or VehicleControlUnit()
         self.motor = motor or MotorController()
+        self.fault_injector = fault_injector
+        self.can_trace = []
 
     def start(self) -> VehicleSnapshot:
         self.vcu.receive(make_vcu_command(True, Gear.NEUTRAL, 0))
@@ -74,6 +78,22 @@ class VehicleController:
 
     def _exchange_frames(self) -> None:
         for frame in self.bms.publish():
+            self._deliver_to_vcu(frame)
+        self._deliver_to_motor(self.vcu.motor_command())
+        self._deliver_to_vcu(self.motor.publish())
+
+    def _deliver_to_vcu(self, frame) -> None:
+        self.can_trace.append(frame)
+        if self.fault_injector is None:
             self.vcu.receive(frame)
-        self.motor.receive(self.vcu.motor_command())
-        self.vcu.receive(self.motor.publish())
+            return
+        for delivered in self.fault_injector.inject(frame):
+            self.vcu.receive(delivered)
+
+    def _deliver_to_motor(self, frame) -> None:
+        self.can_trace.append(frame)
+        if self.fault_injector is None:
+            self.motor.receive(frame)
+            return
+        for delivered in self.fault_injector.inject(frame):
+            self.motor.receive(delivered)

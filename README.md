@@ -38,6 +38,14 @@ Run the API locally:
 python -m vehicle_validation.backend
 ```
 
+Trigger the closed validation loop:
+
+```bash
+curl -X POST http://127.0.0.1:8000/runs \
+  -H "Content-Type: application/json" \
+  -d '{"strategy":"composite","seed":1,"enable_delay_fault":true}'
+```
+
 Run the dashboard:
 
 ```bash

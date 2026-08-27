@@ -60,6 +60,21 @@ h1 {
   padding: 0 14px;
 }
 
+.iconButton.secondary {
+  background: #344054;
+}
+
+.iconButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .grid {
   display: grid;
   gap: 16px;

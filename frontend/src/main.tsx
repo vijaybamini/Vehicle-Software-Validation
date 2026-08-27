@@ -55,6 +55,18 @@ async function getJson<T>(path: string): Promise<T> {
   return response.json();
 }
 
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`/api${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json();
+}
+
 function App() {
   const [status, setStatus] = useState<VehicleStatus | null>(null);
   const [tests, setTests] = useState<TestCase[]>([]);
@@ -62,6 +74,7 @@ function App() {
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [diagnostics, setDiagnostics] = useState<DiagnosticRecord[]>([]);
   const [error, setError] = useState('');
+  const [running, setRunning] = useState(false);
 
   const refresh = async () => {
     try {
@@ -80,6 +93,22 @@ function App() {
       setError('');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to load dashboard data');
+    }
+  };
+
+  const runSuite = async (enableDelayFault: boolean) => {
+    setRunning(true);
+    try {
+      await postJson('/runs', {
+        strategy: 'composite',
+        seed: 1,
+        enable_delay_fault: enableDelayFault,
+      });
+      await refresh();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to run suite');
+    } finally {
+      setRunning(false);
     }
   };
 
@@ -103,10 +132,16 @@ function App() {
           <p className="eyebrow">Validation Console</p>
           <h1>Vehicle Software Validation</h1>
         </div>
-        <button className="iconButton" onClick={refresh} title="Refresh dashboard">
-          <RefreshCw size={18} />
-          Refresh
-        </button>
+        <div className="actions">
+          <button className="iconButton secondary" onClick={() => runSuite(true)} disabled={running} title="Run with delay fault">
+            <Activity size={18} />
+            Fault Run
+          </button>
+          <button className="iconButton" onClick={() => runSuite(false)} disabled={running} title="Run validation suite">
+            <RefreshCw size={18} />
+            {running ? 'Running' : 'Run Suite'}
+          </button>
+        </div>
       </header>
 
       {error && <div className="alert">{error}</div>}

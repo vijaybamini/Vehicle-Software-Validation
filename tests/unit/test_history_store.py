@@ -23,3 +23,18 @@ def test_history_store_reports_statistics(tmp_path) -> None:
     store.save_run(test_run)
 
     assert store.statistics()["pass_rate"] == 0.5
+
+
+def test_history_store_reports_test_profiles(tmp_path) -> None:
+    store = HistoryStore(tmp_path / "history.sqlite3")
+    first = TestRun.create("run-1")
+    first.add(TestResult("drive", True, 0.10))
+    second = TestRun.create("run-2")
+    second.add(TestResult("drive", False, 0.30, failure_reason="no torque"))
+
+    store.save_run(first)
+    store.save_run(second)
+
+    profile = store.test_profiles()["drive"]
+    assert profile["runs"] == 2
+    assert profile["failure_rate"] == 0.5

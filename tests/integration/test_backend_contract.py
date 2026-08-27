@@ -1,8 +1,15 @@
-from vehicle_validation.backend.app import CATALOG, scheduler_comparison, vehicle_status
+from vehicle_validation.backend.app import RunRequest, create_run, list_tests, scheduler_comparison, vehicle_status
 
 
 def test_backend_catalog_has_tests() -> None:
-    assert len(CATALOG) >= 5
+    assert len(list_tests()) >= 5
+
+
+def test_create_run_executes_and_persists_suite() -> None:
+    payload = create_run(RunRequest(strategy="composite", seed=3, enable_delay_fault=False))
+
+    assert payload["summary"]["total"] >= 5
+    assert payload["metadata"]["strategy"] == "composite"
 
 
 def test_scheduler_comparison_returns_all_strategies() -> None:
