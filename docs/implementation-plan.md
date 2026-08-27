@@ -7,7 +7,7 @@
 - [x] 4. BMS ECU
 - [x] 5. Motor ECU
 - [x] 6. VCU ECU
-- [ ] 7. Vehicle controller
+- [x] 7. Vehicle controller
 - [ ] 8. pytest foundation
 - [ ] 9. Reusable automation framework
 - [ ] 10. First functional tests
