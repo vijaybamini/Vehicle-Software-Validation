@@ -9,7 +9,7 @@
 - [x] 6. VCU ECU
 - [x] 7. Vehicle controller
 - [x] 8. pytest foundation
-- [ ] 9. Reusable automation framework
+- [x] 9. Reusable automation framework
 - [ ] 10. First functional tests
 - [ ] 11. Expanded functional, performance, and fault tests
 - [ ] 12. Reproducible message-delay fault injection
