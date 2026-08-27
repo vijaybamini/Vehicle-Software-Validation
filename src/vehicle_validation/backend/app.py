@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+import asyncio
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from vehicle_validation.database.history import HistoryStore
 from vehicle_validation.scheduler.experiments import evaluate_order
@@ -71,3 +73,14 @@ def vehicle_status() -> dict:
         "motor_temperature_celsius": snapshot.motor_temperature_celsius,
         "fault": snapshot.fault.name.lower(),
     }
+
+
+@app.websocket("/ws/status")
+async def websocket_status(websocket: WebSocket) -> None:
+    await websocket.accept()
+    try:
+        while True:
+            await websocket.send_json(vehicle_status())
+            await asyncio.sleep(1.0)
+    except WebSocketDisconnect:
+        return

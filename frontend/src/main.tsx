@@ -71,6 +71,15 @@ function App() {
 
   useEffect(() => {
     refresh();
+    const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${scheme}://${window.location.host}/api/ws/status`);
+    socket.onmessage = (event) => {
+      setStatus(JSON.parse(event.data));
+    };
+    socket.onerror = () => {
+      socket.close();
+    };
+    return () => socket.close();
   }, []);
 
   return (

@@ -20,7 +20,7 @@
 - [x] 17. Reproducible experiments
 - [x] 18. FastAPI backend
 - [x] 19. React dashboard
-- [ ] 20. WebSocket live updates
+- [x] 20. WebSocket live updates
 - [ ] 21. Failure diagnostics
 - [ ] 22. Structured logs and diagnostics
 
