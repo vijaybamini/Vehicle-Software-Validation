@@ -11,7 +11,7 @@
 - [x] 8. pytest foundation
 - [x] 9. Reusable automation framework
 - [x] 10. First functional tests
-- [ ] 11. Expanded functional, performance, and fault tests
+- [x] 11. Expanded functional, performance, and fault tests
 - [ ] 12. Reproducible message-delay fault injection
 - [ ] 13. Structured result collection
 - [ ] 14. SQLite history
