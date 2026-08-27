@@ -5,7 +5,7 @@
 - [x] 2. SocketCAN/vcan sender and receiver
 - [x] 3. CAN protocol specification
 - [x] 4. BMS ECU
-- [ ] 5. Motor ECU
+- [x] 5. Motor ECU
 - [ ] 6. VCU ECU
 - [ ] 7. Vehicle controller
 - [ ] 8. pytest foundation
