@@ -1,0 +1,11 @@
+can:
+  interface: virtual
+  channel: vehicle-validation
+  bitrate: 500000
+
+database:
+  path: vehicle_validation.sqlite3
+
+logging:
+  directory: logs
+  level: INFO

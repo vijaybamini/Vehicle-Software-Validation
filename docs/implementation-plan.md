@@ -1,7 +1,7 @@
 # Implementation checklist
 
 - [x] 0. Freeze MVP architecture
-- [ ] 1. Repository foundation
+- [x] 1. Repository foundation
 - [ ] 2. SocketCAN/vcan sender and receiver
 - [ ] 3. CAN protocol specification
 - [ ] 4. BMS ECU
