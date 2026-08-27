@@ -13,7 +13,7 @@
 - [x] 10. First functional tests
 - [x] 11. Expanded functional, performance, and fault tests
 - [x] 12. Reproducible message-delay fault injection
-- [ ] 13. Structured result collection
+- [x] 13. Structured result collection
 - [ ] 14. SQLite history
 - [ ] 15. Scheduler strategies
 - [ ] 16. Composite scheduler
