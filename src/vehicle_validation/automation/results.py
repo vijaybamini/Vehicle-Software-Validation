@@ -22,6 +22,7 @@ class TestResult:
     duration_seconds: float
     steps: list[StepResult] = field(default_factory=list)
     failure_reason: str = ""
+    diagnostics: dict | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)

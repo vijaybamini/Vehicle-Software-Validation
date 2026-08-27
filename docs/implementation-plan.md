@@ -21,7 +21,7 @@
 - [x] 18. FastAPI backend
 - [x] 19. React dashboard
 - [x] 20. WebSocket live updates
-- [ ] 21. Failure diagnostics
+- [x] 21. Failure diagnostics
 - [ ] 22. Structured logs and diagnostics
 
 Phases 23–24 are deliberately deferred as stretch work.
