@@ -15,7 +15,7 @@
 - [x] 12. Reproducible message-delay fault injection
 - [x] 13. Structured result collection
 - [x] 14. SQLite history
-- [ ] 15. Scheduler strategies
+- [x] 15. Scheduler strategies
 - [ ] 16. Composite scheduler
 - [ ] 17. Reproducible experiments
 - [ ] 18. FastAPI backend
