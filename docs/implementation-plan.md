@@ -3,7 +3,7 @@
 - [x] 0. Freeze MVP architecture
 - [x] 1. Repository foundation
 - [x] 2. SocketCAN/vcan sender and receiver
-- [ ] 3. CAN protocol specification
+- [x] 3. CAN protocol specification
 - [ ] 4. BMS ECU
 - [ ] 5. Motor ECU
 - [ ] 6. VCU ECU
