@@ -1,4 +1,6 @@
 from vehicle_validation.scheduler.strategies import (
+    CompositePriorityStrategy,
+    CompositeWeights,
     FailureRateStrategy,
     RandomStrategy,
     ShortestProcessingTimeStrategy,
@@ -26,6 +28,16 @@ def test_random_strategy_is_reproducible() -> None:
     second = RandomStrategy(seed=42).order(tests)
 
     assert first == second
+
+
+def test_composite_strategy_combines_failure_duration_and_priority() -> None:
+    tests = [
+        TestCase("long-low-risk", 10.0, 0.1, 0.1),
+        TestCase("short-high-risk", 1.0, 0.7, 0.5),
+    ]
+    strategy = CompositePriorityStrategy(CompositeWeights(failure_rate=0.5, duration=0.3, priority=0.2))
+
+    assert [test.name for test in strategy.order(tests)] == ["short-high-risk", "long-low-risk"]
 
 
 def test_strategy_factory_rejects_unknown_name() -> None:

@@ -16,7 +16,7 @@
 - [x] 13. Structured result collection
 - [x] 14. SQLite history
 - [x] 15. Scheduler strategies
-- [ ] 16. Composite scheduler
+- [x] 16. Composite scheduler
 - [ ] 17. Reproducible experiments
 - [ ] 18. FastAPI backend
 - [ ] 19. React dashboard

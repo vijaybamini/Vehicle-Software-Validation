@@ -48,11 +48,37 @@ class FailureRateStrategy:
         return sorted(tests, key=lambda test: (-test.historical_failure_rate, test.name))
 
 
+@dataclass(frozen=True)
+class CompositeWeights:
+    failure_rate: float = 0.6
+    duration: float = 0.2
+    priority: float = 0.2
+
+
+class CompositePriorityStrategy:
+    name = "composite"
+
+    def __init__(self, weights: CompositeWeights | None = None) -> None:
+        self.weights = weights or CompositeWeights()
+
+    def score(self, test: TestCase) -> float:
+        duration_score = 1.0 / max(test.estimated_duration_seconds, 0.001)
+        return (
+            self.weights.failure_rate * test.historical_failure_rate
+            + self.weights.duration * duration_score
+            + self.weights.priority * test.priority
+        )
+
+    def order(self, tests: list[TestCase]) -> list[TestCase]:
+        return sorted(tests, key=lambda test: (-self.score(test), test.name))
+
+
 def strategy_by_name(name: str, seed: int = 1) -> SchedulerStrategy:
     strategies: dict[str, SchedulerStrategy] = {
         RandomStrategy.name: RandomStrategy(seed),
         ShortestProcessingTimeStrategy.name: ShortestProcessingTimeStrategy(),
         FailureRateStrategy.name: FailureRateStrategy(),
+        CompositePriorityStrategy.name: CompositePriorityStrategy(),
     }
     if name not in strategies:
         raise ValueError(f"unknown scheduler strategy: {name}")
