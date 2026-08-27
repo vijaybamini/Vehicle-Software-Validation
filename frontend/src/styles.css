@@ -133,6 +133,43 @@ th {
   margin: 0;
 }
 
+.diagnostics {
+  display: grid;
+  gap: 10px;
+}
+
+.diagnostic {
+  border: 1px solid #e5ebf3;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.diagnostic div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.diagnostic strong {
+  overflow-wrap: anywhere;
+}
+
+.diagnostic span {
+  background: #eef4ff;
+  border-radius: 999px;
+  color: #155eef;
+  font-size: 12px;
+  padding: 3px 8px;
+  text-transform: capitalize;
+}
+
+.diagnostic p {
+  color: #4b5b70;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
 .alert {
   background: #fff3f0;
   border: 1px solid #ffb4a5;

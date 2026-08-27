@@ -22,6 +22,6 @@
 - [x] 19. React dashboard
 - [x] 20. WebSocket live updates
 - [x] 21. Failure diagnostics
-- [ ] 22. Structured logs and diagnostics
+- [x] 22. Structured logs and diagnostics
 
 Phases 23–24 are deliberately deferred as stretch work.

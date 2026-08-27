@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Activity, BarChart3, Battery, History, RefreshCw } from 'lucide-react';
+import { Activity, BarChart3, Battery, FileSearch, History, RefreshCw } from 'lucide-react';
 import './styles.css';
 
 type VehicleStatus = {
@@ -36,6 +36,17 @@ type RunSummary = {
   failed: number;
 };
 
+type DiagnosticRecord = {
+  event: string;
+  payload: {
+    test_name?: string;
+    expected?: string;
+    actual?: string;
+    fault?: string;
+    duration_seconds?: number;
+  };
+};
+
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`/api${path}`);
   if (!response.ok) {
@@ -49,20 +60,23 @@ function App() {
   const [tests, setTests] = useState<TestCase[]>([]);
   const [scheduler, setScheduler] = useState<SchedulerResult[]>([]);
   const [runs, setRuns] = useState<RunSummary[]>([]);
+  const [diagnostics, setDiagnostics] = useState<DiagnosticRecord[]>([]);
   const [error, setError] = useState('');
 
   const refresh = async () => {
     try {
-      const [vehicleStatus, testCatalog, schedulerComparison, runHistory] = await Promise.all([
+      const [vehicleStatus, testCatalog, schedulerComparison, runHistory, diagnosticRecords] = await Promise.all([
         getJson<VehicleStatus>('/vehicle/status'),
         getJson<TestCase[]>('/tests'),
         getJson<SchedulerResult[]>('/scheduler/comparison'),
         getJson<RunSummary[]>('/runs'),
+        getJson<DiagnosticRecord[]>('/diagnostics'),
       ]);
       setStatus(vehicleStatus);
       setTests(testCatalog);
       setScheduler(schedulerComparison);
       setRuns(runHistory);
+      setDiagnostics(diagnosticRecords);
       setError('');
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to load dashboard data');
@@ -179,6 +193,25 @@ function App() {
             </table>
           ) : (
             <p className="muted">No saved runs yet.</p>
+          )}
+        </Panel>
+
+        <Panel title="Diagnostics" icon={<FileSearch size={18} />}>
+          {diagnostics.length ? (
+            <div className="diagnostics">
+              {diagnostics.map((record, index) => (
+                <article className="diagnostic" key={`${record.event}-${index}`}>
+                  <div>
+                    <strong>{record.payload.test_name ?? record.event}</strong>
+                    <span>{record.payload.fault ?? 'none'}</span>
+                  </div>
+                  <p>{record.payload.expected ?? 'No expectation recorded.'}</p>
+                  <p>{record.payload.actual ?? 'No actual result recorded.'}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">No diagnostics yet.</p>
           )}
         </Panel>
       </section>

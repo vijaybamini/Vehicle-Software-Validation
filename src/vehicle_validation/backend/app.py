@@ -6,6 +6,8 @@ import asyncio
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
+from vehicle_validation.automation.diagnostics import build_failure_diagnostic
+from vehicle_validation.automation.logging import StructuredLogger
 from vehicle_validation.database.history import HistoryStore
 from vehicle_validation.scheduler.experiments import evaluate_order
 from vehicle_validation.scheduler.strategies import (
@@ -20,6 +22,7 @@ from vehicle_validation.vehicle.controller import VehicleController
 app = FastAPI(title="Vehicle Software Validation", version="0.1.0")
 history = HistoryStore()
 vehicle = VehicleController()
+structured_logger = StructuredLogger()
 
 
 CATALOG = [
@@ -73,6 +76,23 @@ def vehicle_status() -> dict:
         "motor_temperature_celsius": snapshot.motor_temperature_celsius,
         "fault": snapshot.fault.name.lower(),
     }
+
+
+@app.get("/diagnostics")
+def diagnostics() -> list[dict]:
+    recent = structured_logger.read_recent()
+    if recent:
+        return recent
+
+    sample = build_failure_diagnostic(
+        test_name="motor_over_temperature_reaches_fault",
+        expected="fault code over_temperature when motor exceeds threshold",
+        actual="waiting for next fault run",
+        fault=vehicle.snapshot().fault,
+        duration_seconds=0.0,
+        can_frames=[vehicle.motor.publish()],
+    )
+    return [{"event": "diagnostic.sample", "payload": sample.to_dict()}]
 
 
 @app.websocket("/ws/status")
