@@ -37,3 +37,11 @@ Run the API locally:
 ```bash
 python -m vehicle_validation.backend
 ```
+
+Run the dashboard:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
