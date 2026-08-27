@@ -30,3 +30,21 @@ python scripts/can_sender.py --channel vcan0 --arbitration-id 0x101 --data 01 64
 
 The sender transmits one standard CAN frame. The receiver prints frames until
 you stop it with `Ctrl+C`.
+
+## Run independent ECU processes
+
+After `vcan0` is up, start the BMS, motor, and VCU as separate OS processes:
+
+```bash
+PYTHONPATH=src scripts/run_ecu_stack.py --channel vcan0
+```
+
+In another terminal, send a driver command:
+
+```bash
+PYTHONPATH=src scripts/run_ecu.py driver --channel vcan0 --gear drive --torque 120
+```
+
+The process stack uses `python-can` with `interface=socketcan` and `channel=vcan0`.
+The normal dashboard run loop still uses the in-process fallback so it works on
+machines where SocketCAN is unavailable.

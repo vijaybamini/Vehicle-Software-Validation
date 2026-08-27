@@ -1,4 +1,11 @@
-from vehicle_validation.backend.app import RunRequest, create_run, list_tests, scheduler_comparison, vehicle_status
+from vehicle_validation.backend.app import (
+    RunRequest,
+    can_runtime_status,
+    create_run,
+    list_tests,
+    scheduler_comparison,
+    vehicle_status,
+)
 
 
 def test_backend_catalog_has_tests() -> None:
@@ -29,3 +36,10 @@ def test_vehicle_status_contract() -> None:
     assert "state" in payload
     assert "soc_percent" in payload
     assert "fault" in payload
+
+
+def test_can_runtime_status_contract() -> None:
+    payload = can_runtime_status("not-real")
+
+    assert payload["channel"] == "not-real"
+    assert "socketcan_available" in payload

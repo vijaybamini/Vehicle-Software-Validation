@@ -11,6 +11,7 @@ from vehicle_validation.automation.diagnostics import build_failure_diagnostic
 from vehicle_validation.automation.executor import ValidationExecutor
 from vehicle_validation.automation.logging import StructuredLogger
 from vehicle_validation.database.history import HistoryStore
+from vehicle_validation.ecu.supervisor import can_channel_available
 from vehicle_validation.scheduler.experiments import evaluate_order
 from vehicle_validation.scheduler.strategies import (
     CompositePriorityStrategy,
@@ -85,6 +86,15 @@ def vehicle_status() -> dict:
         "battery_temperature_celsius": snapshot.battery_temperature_celsius,
         "motor_temperature_celsius": snapshot.motor_temperature_celsius,
         "fault": snapshot.fault.name.lower(),
+    }
+
+
+@app.get("/runtime/can")
+def can_runtime_status(channel: str = "vcan0") -> dict:
+    return {
+        "channel": channel,
+        "socketcan_available": can_channel_available(channel),
+        "mode": "socketcan-processes" if can_channel_available(channel) else "in-process-fallback",
     }
 
 

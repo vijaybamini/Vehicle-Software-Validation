@@ -46,6 +46,19 @@ curl -X POST http://127.0.0.1:8000/runs \
   -d '{"strategy":"composite","seed":1,"enable_delay_fault":true}'
 ```
 
+Run the ECU process stack over SocketCAN:
+
+```bash
+scripts/setup_vcan.sh vcan0
+PYTHONPATH=src scripts/run_ecu_stack.py --channel vcan0
+```
+
+Send one driver command to the VCU process:
+
+```bash
+PYTHONPATH=src scripts/run_ecu.py driver --channel vcan0 --gear drive --torque 120
+```
+
 Run the dashboard:
 
 ```bash

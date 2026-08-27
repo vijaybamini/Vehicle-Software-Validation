@@ -47,6 +47,12 @@ type DiagnosticRecord = {
   };
 };
 
+type CanRuntime = {
+  channel: string;
+  socketcan_available: boolean;
+  mode: string;
+};
+
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`/api${path}`);
   if (!response.ok) {
@@ -69,6 +75,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 
 function App() {
   const [status, setStatus] = useState<VehicleStatus | null>(null);
+  const [canRuntime, setCanRuntime] = useState<CanRuntime | null>(null);
   const [tests, setTests] = useState<TestCase[]>([]);
   const [scheduler, setScheduler] = useState<SchedulerResult[]>([]);
   const [runs, setRuns] = useState<RunSummary[]>([]);
@@ -78,14 +85,16 @@ function App() {
 
   const refresh = async () => {
     try {
-      const [vehicleStatus, testCatalog, schedulerComparison, runHistory, diagnosticRecords] = await Promise.all([
+      const [vehicleStatus, runtimeStatus, testCatalog, schedulerComparison, runHistory, diagnosticRecords] = await Promise.all([
         getJson<VehicleStatus>('/vehicle/status'),
+        getJson<CanRuntime>('/runtime/can'),
         getJson<TestCase[]>('/tests'),
         getJson<SchedulerResult[]>('/scheduler/comparison'),
         getJson<RunSummary[]>('/runs'),
         getJson<DiagnosticRecord[]>('/diagnostics'),
       ]);
       setStatus(vehicleStatus);
+      setCanRuntime(runtimeStatus);
       setTests(testCatalog);
       setScheduler(schedulerComparison);
       setRuns(runHistory);
@@ -156,6 +165,7 @@ function App() {
               <Metric label="Torque" value={`${status.torque_nm} Nm`} />
               <Metric label="SOC" value={`${status.soc_percent}%`} />
               <Metric label="Fault" value={status.fault} />
+              <Metric label="CAN Mode" value={canRuntime?.mode ?? 'unknown'} />
             </div>
           ) : (
             <p className="muted">Waiting for backend data.</p>
