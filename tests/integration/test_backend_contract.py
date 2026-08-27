@@ -1,0 +1,24 @@
+from vehicle_validation.backend.app import CATALOG, scheduler_comparison, vehicle_status
+
+
+def test_backend_catalog_has_tests() -> None:
+    assert len(CATALOG) >= 5
+
+
+def test_scheduler_comparison_returns_all_strategies() -> None:
+    payload = scheduler_comparison(seed=1)
+
+    assert {item["strategy"] for item in payload} == {
+        "random",
+        "shortest_processing_time",
+        "failure_rate",
+        "composite",
+    }
+
+
+def test_vehicle_status_contract() -> None:
+    payload = vehicle_status()
+
+    assert "state" in payload
+    assert "soc_percent" in payload
+    assert "fault" in payload

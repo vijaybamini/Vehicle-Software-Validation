@@ -18,7 +18,7 @@
 - [x] 15. Scheduler strategies
 - [x] 16. Composite scheduler
 - [x] 17. Reproducible experiments
-- [ ] 18. FastAPI backend
+- [x] 18. FastAPI backend
 - [ ] 19. React dashboard
 - [ ] 20. WebSocket live updates
 - [ ] 21. Failure diagnostics

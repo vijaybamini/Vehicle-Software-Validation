@@ -31,3 +31,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pytest
 ```
+
+Run the API locally:
+
+```bash
+python -m vehicle_validation.backend
+```
