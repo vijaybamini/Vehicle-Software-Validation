@@ -17,7 +17,7 @@
 - [x] 14. SQLite history
 - [x] 15. Scheduler strategies
 - [x] 16. Composite scheduler
-- [ ] 17. Reproducible experiments
+- [x] 17. Reproducible experiments
 - [ ] 18. FastAPI backend
 - [ ] 19. React dashboard
 - [ ] 20. WebSocket live updates
