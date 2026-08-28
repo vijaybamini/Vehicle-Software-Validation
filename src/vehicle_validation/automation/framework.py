@@ -29,7 +29,7 @@ class Scenario:
 
 
 class ScenarioRunner:
-    def __init__(self, vehicle_factory: Callable[[], VehicleController] = VehicleController) -> None:
+    def __init__(self, vehicle_factory: Callable[[], object] = VehicleController) -> None:
         self.vehicle_factory = vehicle_factory
 
     def run(self, scenario: Scenario) -> TestResult:

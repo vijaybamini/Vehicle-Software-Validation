@@ -66,3 +66,18 @@ cd frontend
 npm install
 npm run dev
 ```
+
+## Execution modes
+
+`POST /runs` executes the validation suite through the scheduler in the
+fastest available mode:
+
+- `socketcan-processes` — BMS / VCU / motor run as independent processes over
+  `vcan0`; the suite drives them with real CAN frames.
+- `in-process-fallback` — deterministic in-process ECU models. Delay-fault
+  injection currently runs in this mode (`enable_delay_fault: true`); a
+  missing/`sudo`-protected `vcan0` channel also falls back here.
+
+Check the active mode on the dashboard or via `GET /runtime/can`. Live per-test
+progress streams over `/ws/progress`; run records with per-test results are
+available at `GET /runs/{run_id}`.

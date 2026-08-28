@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
+from typing import ClassVar
 from time import perf_counter
 
 
@@ -17,6 +18,8 @@ class StepResult:
 
 @dataclass
 class TestResult:
+    __test__: ClassVar[bool] = False
+
     name: str
     passed: bool
     duration_seconds: float
@@ -30,6 +33,8 @@ class TestResult:
 
 @dataclass
 class TestRun:
+    __test__: ClassVar[bool] = False
+
     run_id: str
     started_at: str
     results: list[TestResult] = field(default_factory=list)

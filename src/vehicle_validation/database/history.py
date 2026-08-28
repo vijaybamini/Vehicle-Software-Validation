@@ -80,6 +80,25 @@ class HistoryStore:
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def run_details(self, run_id: str) -> dict | None:
+        with self.connect() as connection:
+            run = connection.execute(
+                "SELECT * FROM test_runs WHERE run_id = ?", (run_id,)
+            ).fetchone()
+            if run is None:
+                return None
+            results = connection.execute(
+                "SELECT * FROM test_results WHERE run_id = ? ORDER BY id", (run_id,)
+            ).fetchall()
+        return {
+            **dict(run),
+            "metadata": json.loads(run["metadata_json"]),
+            "results": [
+                {**dict(row), "steps": json.loads(row["steps_json"])}
+                for row in results
+            ],
+        }
+
     def statistics(self) -> dict[str, float | int]:
         with self.connect() as connection:
             row = connection.execute(

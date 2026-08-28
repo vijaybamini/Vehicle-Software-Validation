@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import asynccontextmanager
 
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from vehicle_validation.automation.diagnostics import build_failure_diagnostic
 from vehicle_validation.automation.executor import ValidationExecutor
 from vehicle_validation.automation.logging import StructuredLogger
+from vehicle_validation.backend.progress import ProgressHub
 from vehicle_validation.database.history import HistoryStore
 from vehicle_validation.ecu.supervisor import can_channel_available
 from vehicle_validation.scheduler.experiments import evaluate_order
@@ -21,11 +23,20 @@ from vehicle_validation.scheduler.strategies import (
 )
 from vehicle_validation.vehicle.controller import VehicleController
 
-app = FastAPI(title="Vehicle Software Validation", version="0.1.0")
+hub = ProgressHub()
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    hub.bind(asyncio.get_running_loop())
+    yield
+
+
+app = FastAPI(title="Vehicle Software Validation", version="0.1.0", lifespan=lifespan)
 history = HistoryStore()
 vehicle = VehicleController()
 structured_logger = StructuredLogger()
-executor = ValidationExecutor(history, structured_logger)
+executor = ValidationExecutor(history, structured_logger, channel="vcan0")
 
 
 class RunRequest(BaseModel):
@@ -50,8 +61,17 @@ def create_run(request: RunRequest) -> dict:
         strategy_name=request.strategy,
         seed=request.seed,
         enable_delay_fault=request.enable_delay_fault,
+        on_event=hub.publish,
     )
     return test_run.to_dict()
+
+
+@app.get("/runs/{run_id}")
+def get_run(run_id: str) -> dict:
+    record = history.run_details(run_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail="run not found")
+    return record
 
 
 @app.get("/statistics")
@@ -123,4 +143,16 @@ async def websocket_status(websocket: WebSocket) -> None:
             await websocket.send_json(vehicle_status())
             await asyncio.sleep(1.0)
     except WebSocketDisconnect:
+        return
+
+
+@app.websocket("/ws/progress")
+async def websocket_progress(websocket: WebSocket) -> None:
+    await websocket.accept()
+    queue = hub.subscribe()
+    try:
+        while True:
+            await websocket.send_json(await queue.get())
+    except WebSocketDisconnect:
+        hub.unsubscribe(queue)
         return

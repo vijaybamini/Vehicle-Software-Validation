@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Activity, BarChart3, Battery, FileSearch, History, RefreshCw } from 'lucide-react';
+import { Activity, BarChart3, Battery, FileSearch, History, RefreshCw, Zap } from 'lucide-react';
 import './styles.css';
 
 type VehicleStatus = {
@@ -53,6 +53,20 @@ type CanRuntime = {
   mode: string;
 };
 
+type ProgressEvent = {
+  event: string;
+  payload: {
+    run_id: string;
+    name?: string;
+    index?: number;
+    total?: number;
+    duration_seconds?: number;
+    failure_reason?: string;
+    mode?: string;
+    summary?: { total: number; passed: number; failed: number };
+  };
+};
+
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`/api${path}`);
   if (!response.ok) {
@@ -82,6 +96,7 @@ function App() {
   const [diagnostics, setDiagnostics] = useState<DiagnosticRecord[]>([]);
   const [error, setError] = useState('');
   const [running, setRunning] = useState(false);
+  const [events, setEvents] = useState<ProgressEvent[]>([]);
 
   const refresh = async () => {
     try {
@@ -124,14 +139,29 @@ function App() {
   useEffect(() => {
     refresh();
     const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const socket = new WebSocket(`${scheme}://${window.location.host}/api/ws/status`);
-    socket.onmessage = (event) => {
+    const statusSocket = new WebSocket(`${scheme}://${window.location.host}/api/ws/status`);
+    statusSocket.onmessage = (event) => {
       setStatus(JSON.parse(event.data));
     };
-    socket.onerror = () => {
-      socket.close();
+    statusSocket.onerror = () => {
+      statusSocket.close();
     };
-    return () => socket.close();
+    const progressSocket = new WebSocket(`${scheme}://${window.location.host}/api/ws/progress`);
+    progressSocket.onmessage = (event) => {
+      const record = JSON.parse(event.data) as ProgressEvent;
+      setEvents((latest) => [...latest.slice(-49), record]);
+      if (record.event === 'run.completed') {
+        setRunning(false);
+        refresh();
+      }
+    };
+    progressSocket.onerror = () => {
+      progressSocket.close();
+    };
+    return () => {
+      statusSocket.close();
+      progressSocket.close();
+    };
   }, []);
 
   return (
@@ -257,6 +287,30 @@ function App() {
             </div>
           ) : (
             <p className="muted">No diagnostics yet.</p>
+          )}
+        </Panel>
+
+        <Panel title="Live Run Events" icon={<Zap size={18} />}>
+          {events.length ? (
+            <div className="eventList">
+              {events.map((record, index) => (
+                <article className="event" key={`${record.event}-${index}`}>
+                  <span className={`eventTag ${record.event}`}>{record.event}</span>
+                  <div>
+                    <strong>{record.payload.name ?? record.event}</strong>
+                    <span>
+                      {record.event === 'test.started'
+                        ? `${record.payload.index ?? ''}/${record.payload.total ?? ''}`
+                        : record.event === 'run.completed'
+                          ? `${record.payload.summary?.passed ?? 0} passed, ${record.payload.summary?.failed ?? 0} failed`
+                          : `${(record.payload.duration_seconds ?? 0).toFixed(2)}s${record.payload.failure_reason ? ` - ${record.payload.failure_reason}` : ''}`}
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">Run a suite to see live progress.</p>
           )}
         </Panel>
       </section>

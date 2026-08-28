@@ -15,6 +15,9 @@ authors = [{ name = "Vijay Bamini" }]
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = [
+    "lifecycle: spawns and manages real ECU subprocesses (requires PYTHONPATH on src)",
+]

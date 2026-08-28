@@ -20,6 +20,7 @@ class VcuConfig:
     max_torque_nm: int = 250
     default_speed_limit_rpm: int = 7000
     max_regen_percent: int = 30
+    motor_status_timeout_ticks: int = 5
 
 
 @dataclass
@@ -31,6 +32,8 @@ class VcuState:
     motor_speed_rpm: int = 0
     motor_torque_nm: int = 0
     fault: FaultCode = FaultCode.NONE
+    has_motor_status: bool = False
+    ticks_since_motor_status: int = 0
 
 
 class VehicleControlUnit:
@@ -62,6 +65,7 @@ class VehicleControlUnit:
         return make_motor_command(True, torque, self.config.default_speed_limit_rpm)
 
     def publish(self) -> CanFrame:
+        self._update_motor_watchdog()
         speed_deci_kph = round(self.state.motor_speed_rpm * 0.012)
         return make_vcu_status(
             self.vehicle_state,
@@ -97,9 +101,23 @@ class VehicleControlUnit:
             self.state.enabled = False
 
     def _receive_motor_status(self, frame: CanFrame) -> None:
+        self.state.has_motor_status = True
+        self.state.ticks_since_motor_status = 0
         self.state.motor_speed_rpm = int.from_bytes(frame.data[1:3], "big", signed=False)
         self.state.motor_torque_nm = int.from_bytes(frame.data[3:5], "big", signed=True)
         fault = FaultCode(frame.data[6])
         if fault != FaultCode.NONE:
             self.state.fault = fault
+            self.state.enabled = False
+
+    def _update_motor_watchdog(self) -> None:
+        if self.state.fault != FaultCode.NONE:
+            return
+        if not self.state.enabled or self.state.gear not in {Gear.DRIVE, Gear.REVERSE}:
+            return
+        if not self.state.has_motor_status:
+            return
+        self.state.ticks_since_motor_status += 1
+        if self.state.ticks_since_motor_status > self.config.motor_status_timeout_ticks:
+            self.state.fault = FaultCode.COMMUNICATION_TIMEOUT
             self.state.enabled = False

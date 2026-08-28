@@ -38,3 +38,18 @@ def test_history_store_reports_test_profiles(tmp_path) -> None:
     profile = store.test_profiles()["drive"]
     assert profile["runs"] == 2
     assert profile["failure_rate"] == 0.5
+
+
+def test_history_store_returns_run_details(tmp_path) -> None:
+    store = HistoryStore(tmp_path / "history.sqlite3")
+    test_run = TestRun.create("run-detail")
+    test_run.add(TestResult("startup", True, 0.01))
+    test_run.add(TestResult("drive", False, 0.02, failure_reason="no torque"))
+
+    store.save_run(test_run)
+
+    details = store.run_details("run-detail")
+    assert details is not None
+    assert details["run_id"] == "run-detail"
+    assert len(details["results"]) == 2
+    assert store.run_details("missing-run") is None

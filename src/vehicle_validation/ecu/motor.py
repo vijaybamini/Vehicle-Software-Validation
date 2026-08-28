@@ -66,6 +66,9 @@ class MotorController:
         self._update_faults()
 
     def tick(self) -> None:
+        self._update_faults()
+        if self.state.fault != FaultCode.NONE:
+            return
         if not self.state.enabled:
             self.state.speed_rpm = max(0, self.state.speed_rpm - 100)
             self.state.temperature_celsius = max(

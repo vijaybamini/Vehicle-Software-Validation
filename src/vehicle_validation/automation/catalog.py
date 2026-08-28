@@ -16,6 +16,7 @@ from vehicle_validation.vehicle.controller import VehicleController, VehicleSnap
 class ScenarioDefinition:
     test_case: TestCase
     scenario: Scenario
+    bus_safe: bool = False
 
 
 def scenario_catalog() -> list[ScenarioDefinition]:
@@ -35,6 +36,7 @@ def scenario_catalog() -> list[ScenarioDefinition]:
                     ),
                 ),
             ),
+            bus_safe=True,
         ),
         ScenarioDefinition(
             TestCase("drive_command_produces_speed_and_torque", 1.2, 0.0, 0.3),
@@ -49,6 +51,7 @@ def scenario_catalog() -> list[ScenarioDefinition]:
                     ),
                 ),
             ),
+            bus_safe=True,
         ),
         ScenarioDefinition(
             TestCase("reverse_command_produces_negative_torque", 0.7, 0.0, 0.4),
@@ -63,6 +66,7 @@ def scenario_catalog() -> list[ScenarioDefinition]:
                     ),
                 ),
             ),
+            bus_safe=True,
         ),
         ScenarioDefinition(
             TestCase("low_soc_forces_vehicle_fault", 0.8, 0.0, 0.9),

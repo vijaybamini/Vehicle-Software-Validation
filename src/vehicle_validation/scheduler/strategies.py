@@ -4,11 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from random import Random
-from typing import Protocol
+from typing import ClassVar, Protocol
 
 
 @dataclass(frozen=True)
 class TestCase:
+    __test__: ClassVar[bool] = False
+
     name: str
     estimated_duration_seconds: float = 1.0
     historical_failure_rate: float = 0.0

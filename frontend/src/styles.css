@@ -195,6 +195,78 @@ th {
   padding: 12px 14px;
 }
 
+.eventList {
+  display: grid;
+  gap: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.event {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e5ebf3;
+  border-radius: 6px;
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+}
+
+.event div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.event div strong,
+.event div span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event div span {
+  color: #5b6b7f;
+  font-size: 12px;
+}
+
+.eventTag {
+  border-radius: 999px;
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.eventTag.run-started {
+  background: #eef4ff;
+  color: #155eef;
+}
+
+.eventTag.test-started {
+  background: #eef6ed;
+  color: #217a3a;
+}
+
+.eventTag.test-passed {
+  background: #eef6ed;
+  color: #217a3a;
+}
+
+.eventTag.test-failed {
+  background: #fff3f0;
+  color: #9b2c14;
+}
+
+.eventTag.run-completed {
+  background: #f1f2f6;
+  color: #344054;
+}
+
 @media (max-width: 820px) {
   .workspace {
     padding: 18px;
